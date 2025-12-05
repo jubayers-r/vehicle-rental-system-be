@@ -32,6 +32,7 @@ const create = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message,
+      details: error,
     });
   }
 };

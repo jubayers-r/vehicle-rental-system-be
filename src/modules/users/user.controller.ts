@@ -24,6 +24,7 @@ const findAll = async (_req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message,
+      details: error,
     });
   }
   return result;
