@@ -6,10 +6,12 @@ import { bookingRoutes } from "./modules/bookings/booking.route";
 import { authRoutes } from "./modules/auth/auth.route";
 
 const app: Application = express();
-const apiV1 = Router();
-
-app.use("/api/v1/", apiV1);
 app.use(express.json());
+
+
+const apiV1 = Router();
+app.use("/api/v1/", apiV1);
+
 
 // "/api/v1/" routes
 apiV1.get("/", (_req: Request, res: Response) => {
