@@ -30,6 +30,31 @@ const findAll = async (_req: Request, res: Response) => {
   return result;
 };
 
+const deleteOne = async (req: Request, res: Response) => {
+  const result = await userServices.deleteById(req.params.userId!);
+
+  try {
+    if (!result.rowCount) {
+      res.status(404).json({
+        success: false,
+        message: "user not found",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+      });
+    }
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      details: error,
+    });
+  }
+};
+
 export const userControllers = {
   findAll,
+  deleteOne,
 };

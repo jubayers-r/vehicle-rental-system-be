@@ -5,5 +5,13 @@ const getAllUsers = async () =>
     SELECT * FROM users
     `);
 
+const deleteById = async (userId: string) => {
+  return await pool.query(
+    `
+        DELETE FROM users WHERE id=$1
+        `,
+    [userId],
+  );
+};
 
-export const userServices = { getAllUsers };
+export const userServices = { getAllUsers, deleteById };

@@ -9,34 +9,6 @@ const router = Router();
 router.get("/", userControllers.findAll);
 
 // admin_access_only middleware needed
-router.delete("/:userId", async (req: Request, res: Response) => {
-  const uid = req.params.userId;
-  const result = await pool.query(
-    `
-        DELETE FROM users WHERE id=$1
-        `,
-    [uid],
-  );
-
-  try {
-    if (!result.rowCount) {
-      res.status(404).json({
-        success: false,
-        message: "user not found",
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "User deleted successfully",
-      });
-    }
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      details: error,
-    });
-  }
-});
+router.delete("/:userId", userControllers.deleteOne);
 
 export const userRoutes = router;
