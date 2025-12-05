@@ -6,7 +6,8 @@ const pool = new Pool({
 });
 
 const initDB = async () => {
-  // real misfortunate CREATE TYPE works but CREATE TYPE IF NOT EXISTS doesnt work on this cloud
+    // for future refernce of the reason not using it (faced same problem for 2nd time)
+   // real misfortunate CREATE TYPE works but CREATE TYPE IF NOT EXISTS doesnt work on this cloud
   // couldnt findout the reason so had to go with the old time sql syntax
 
   await pool.query(
