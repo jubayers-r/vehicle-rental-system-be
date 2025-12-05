@@ -46,7 +46,7 @@ DO $$
           password TEXT NOT NULL,
             CHECK (char_length(password) >= 6),
           phone VARCHAR(15) NOT NULL,
-          role user_role NOT NULL DEFAULT 'customer'
+          role user_role NOT NULL
           )
       `);
 
