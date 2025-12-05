@@ -1,6 +1,11 @@
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import { authServices } from "./auth.service";
+import {
+  badRequest,
+  postSuccessful,
+  serverError,
+} from "../../utils/responseHandler";
 
 const create = async (req: Request, res: Response) => {
   const { password, ...rest } = req.body;
@@ -16,24 +21,14 @@ const create = async (req: Request, res: Response) => {
 
   try {
     if (!result.rows.length) {
-      res.status(400).json({
-        success: false,
-        message: "Invalid data",
-      });
+      badRequest(res);
     } else {
       delete result.rows[0].password;
-      res.status(201).json({
-        success: true,
-        message: "User registered successfully",
-        data: result.rows,
-      });
+
+      postSuccessful(res, "User registered successfully", result.rows);
     }
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      details: error,
-    });
+    serverError(res, error);
   }
 };
 
