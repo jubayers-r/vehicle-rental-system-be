@@ -1,0 +1,40 @@
+{
+  "name": "vehicle-rental-system-be",
+  "version": "1.0.0",
+  "description": "A Node.js + TypeScript backend service for managing vehicle rental operations, featuring vehicle inventory tracking, customer profiles, booking lifecycle management, automated cost calculation, and JWT-based authentication with admin and customer roles.",
+  "main": "./dist/src/server.js",
+  "scripts": {
+    "start": "node ./dist/src/server.js",
+    "build": "tsc",
+    "dev": "tsx --watch ./src/server.ts",
+    "format": "prettier . --write"
+  },
+  "keywords": [
+    "express",
+    "vehicle-rental-system",
+    "postgresql",
+    "typescript",
+    "nodejs",
+    "backend",
+    "jwt"
+  ],
+  "author": "jubayers-r",
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
+    "prettier": "^3.7.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
