@@ -1,9 +1,12 @@
 import express, { Application, Request, Response, Router } from "express";
 import { initDB } from "./config/db";
+import { userRoutes } from "./modules/users/user.route";
+import { vehicleRoutes } from "./modules/vehicles/vehicle.route";
+import { bookingRoutes } from "./modules/bookings/booking.route";
+import { authRoutes } from "./modules/auth/auth.route";
 
 const app: Application = express();
 const apiV1 = Router();
-
 
 app.use("/api/v1/", apiV1);
 app.use(express.json());
@@ -12,6 +15,11 @@ app.use(express.json());
 apiV1.get("/", (_req: Request, res: Response) => {
   res.send("Hello from vehicle rental system nested api v1 route ");
 });
+
+apiV1.use("/users", userRoutes);
+apiV1.use("/vehicles", vehicleRoutes);
+apiV1.use("/bookings", bookingRoutes);
+apiV1.use("/auth", authRoutes);
 
 // db
 initDB()
