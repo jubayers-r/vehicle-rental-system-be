@@ -21,9 +21,10 @@ const create = async (req: Request, res: Response) => {
         message: "Invalid data",
       });
     } else {
+      delete result.rows[0].password;
       res.status(201).json({
         success: true,
-        message: "User creatd successfully",
+        message: "User registered successfully",
         data: result.rows,
       });
     }

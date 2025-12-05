@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { userServices } from "./user.service";
 
-
 const findAll = async (_req: Request, res: Response) => {
   const result = await userServices.getAllUsers();
 
@@ -12,9 +11,12 @@ const findAll = async (_req: Request, res: Response) => {
         message: "No users found on users table",
       });
     } else {
+      result.rows.forEach((row) => {
+        delete row.password;
+      });
       res.status(200).json({
         success: true,
-        message: "Users found successfully",
+        message: "Users retrieved successfully",
         data: result.rows,
       });
     }
@@ -26,8 +28,6 @@ const findAll = async (_req: Request, res: Response) => {
   }
   return result;
 };
-
-
 
 export const userControllers = {
   findAll,
