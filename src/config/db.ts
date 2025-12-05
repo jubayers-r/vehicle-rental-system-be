@@ -6,8 +6,8 @@ const pool = new Pool({
 });
 
 const initDB = async () => {
-    // for future refernce of the reason not using it (faced same problem for 2nd time)
-   // real misfortunate CREATE TYPE works but CREATE TYPE IF NOT EXISTS doesnt work on this cloud
+  // for future refernce of the reason not using it (faced same problem for 2nd time)
+  // real misfortunate CREATE TYPE works but CREATE TYPE IF NOT EXISTS doesnt work on this cloud
   // couldnt findout the reason so had to go with the old time sql syntax
 
   await pool.query(
@@ -40,7 +40,7 @@ DO $$
 
   await pool.query(`
           CREATE TABLE IF NOT EXISTS users(
-          id SERIAL PRIMARY KEY,
+          id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
           name VARCHAR(100) NOT NULL,
           email TEXT UNIQUE NOT NULL CHECK (email ~ '[a-z]'),
           password TEXT NOT NULL,
@@ -52,7 +52,7 @@ DO $$
 
   await pool.query(`
           CREATE TABLE IF NOT EXISTS vehicles(
-          id SERIAL PRIMARY KEY,
+          id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
           vehicle_name VARCHAR(150) NOT NULL,
           type car_types NOT NULL,
           registration_number VARCHAR(100) UNIQUE NOT NULL,
@@ -63,7 +63,7 @@ DO $$
           `);
   await pool.query(`
           CREATE TABLE IF NOT EXISTS bookings(
-          id SERIAL PRIMARY KEY,
+          id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
           customer_id INT REFERENCES users(id) ON DELETE CASCADE,
           vehicle_id INT REFERENCES vehicles(id) ON DELETE CASCADE,
           rent_start_date DATE NOT NULL DEFAULT NOW() ,
