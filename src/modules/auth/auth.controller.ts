@@ -25,7 +25,7 @@ const create = asyncHandler(async (req: Request, res: Response) => {
 
   const result = await authServices.createUser(userData);
   if (!result.rows.length) {
-    badRequest(res);
+    return badRequest(res);
   }
 
   delete result.rows[0].password;
@@ -39,7 +39,7 @@ const login = asyncHandler(async (req: Request, res: Response) => {
   const result = await authServices.loginUser(email);
 
   if (!result.rows.length) {
-    notFound(res, "User");
+    return notFound(res, "User");
   }
 
   const user = result.rows[0];
@@ -47,14 +47,18 @@ const login = asyncHandler(async (req: Request, res: Response) => {
   const match = await bcrypt.compare(password, user.password);
 
   if (!match) {
-    unauthorizedRequest(res, "credentials");
+    return unauthorizedRequest(res, "credentials");
   }
+  delete user.id;
+  delete user.password;
+  delete user.iat;
+  delete user.exp;
 
   const secret = config.jwt_secret;
-  const accessToken = jwt.sign({ role: user.role }, secret as string, {
+  const accessToken = jwt.sign(user, secret as string, {
     expiresIn: "15m",
   });
-  const refreshToken = jwt.sign({ role: user.role }, secret as string, {
+  const refreshToken = jwt.sign(user, secret as string, {
     expiresIn: "7d",
   });
 

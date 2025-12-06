@@ -13,10 +13,10 @@ const findAll = asyncHandler(async (_req: Request, res: Response) => {
   const result = await userServices.getAllUsers();
 
   if (!result.rows.length) {
-    notFound(res, "Users");
+    return notFound(res, "Users");
   }
   result.rows.forEach((row) => {
-    delete row.password;
+    return delete row.password;
   });
 
   okResponse(res, "Users retrieved successfully", result.rows);
@@ -26,7 +26,7 @@ const findAll = asyncHandler(async (_req: Request, res: Response) => {
 const deleteOne = asyncHandler(async (req: Request, res: Response) => {
   const result = await userServices.deleteById(req.params.userId!);
   if (!result.rowCount) {
-    notFound(res, "User");
+    return notFound(res, "User");
   }
   okResponse(res, "User deleted successfully");
 });
@@ -34,7 +34,7 @@ const deleteOne = asyncHandler(async (req: Request, res: Response) => {
 const updateOne = asyncHandler(async (req: Request, res: Response) => {
   const uid = req.params.userId;
   if (!Object.keys(req.body).length) {
-    badRequest(res);
+    return badRequest(res);
   }
 
   for (const key in req.body) {
