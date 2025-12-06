@@ -17,6 +17,6 @@ router.get("/", vehicleControllers.findAll);
 
 router.get("/:vehicleId", vehicleControllers.findOne);
 
-
+router.delete("/:vehicleId", auth(["admin"]), vehicleControllers.deleteOne);
 
 export const vehicleRoutes = router;

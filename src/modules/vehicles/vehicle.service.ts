@@ -36,4 +36,18 @@ const getById = async (vid: string) =>
     [vid],
   );
 
-export const vehicleServices = { createVehicle, getAllVehicles, getById };
+const deleteById = async (vid: string) => {
+  return await pool.query(
+    `
+        DELETE FROM vehicles WHERE id = $1
+        `,
+    [vid],
+  );
+};
+
+export const vehicleServices = {
+  createVehicle,
+  getAllVehicles,
+  getById,
+  deleteById,
+};

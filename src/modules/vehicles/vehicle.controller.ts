@@ -41,4 +41,15 @@ const findOne = asyncHandler(async (req: Request, res: Response) => {
   okResponse(res, "Vehicle retrieved successfully", result.rows[0]);
 });
 
-export const vehicleControllers = { create, findAll, findOne };
+const deleteOne = asyncHandler(async (req: Request, res: Response) => {
+  const vid = req.params.vehicleId;
+  const result = await vehicleServices.deleteById(vid!);
+
+  if (!result.rowCount) {
+    return notFound(res, "Vehicle");
+  }
+
+  return okResponse(res, "Vehicle deleted successfully");
+});
+
+export const vehicleControllers = { create, findAll, findOne, deleteOne };
