@@ -7,5 +7,6 @@ router.get("/", async (_req: Request, res: Response) => {
 });
 
 router.post("/signup", authController.create);
+router.post("/signin", authController.login);
 
 export const authRoutes = router;

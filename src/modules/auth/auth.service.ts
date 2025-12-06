@@ -10,6 +10,15 @@ const createUser = async (userData: Record<string, string>) => {
   );
 };
 
+const loginUser = async (email: string) =>
+  await pool.query(
+    `
+    SELECT * FROM users WHERE email = $1
+    `,
+    [email],
+  );
+
 export const authServices = {
   createUser,
+  loginUser,
 };

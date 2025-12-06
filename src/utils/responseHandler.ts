@@ -9,10 +9,10 @@ const okResponse = (res: Response, message: string, data?: any) => {
   });
 };
 
-const postSuccessful = (res: Response, message: string, data?: any) => {
+const postSuccessful = (res: Response, resource: string, data?: any) => {
   res.status(201).json({
     success: true,
-    message: "User registered successfully",
+    message: `${resource} successfully`,
     data: data,
   });
 };
@@ -24,6 +24,13 @@ const badRequest = (res: Response) => {
     message: "Provide valid input",
   });
 };
+
+const unauthorizedRequest = (res: Response, resource: string) => {
+  res.status(401).json({
+    success: false,
+    message: `Invalid ${resource}`
+  })
+}
 
 const notFound = (res: Response, resource: string) => {
   res.status(404).json({
@@ -42,4 +49,4 @@ const serverError = (res: Response, err: any) => {
   });
 };
 
-export { postSuccessful, okResponse, notFound, badRequest, serverError };
+export { postSuccessful, okResponse, unauthorizedRequest, notFound, badRequest, serverError };

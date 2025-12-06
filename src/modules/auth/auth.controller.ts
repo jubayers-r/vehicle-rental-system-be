@@ -1,8 +1,17 @@
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import { authServices } from "./auth.service";
-import { badRequest, postSuccessful } from "../../utils/responseHandler";
+import {
+  badRequest,
+  notFound,
+  okResponse,
+  postSuccessful,
+  unauthorizedRequest,
+} from "../../utils/responseHandler";
 import { asyncHandler } from "../../utils/asyncHandler";
+import { pool } from "../../config/db";
+import jwt from "jsonwebtoken";
+import config from "../../config";
 
 const create = asyncHandler(async (req: Request, res: Response) => {
   const { password, ...rest } = req.body;
@@ -21,9 +30,40 @@ const create = asyncHandler(async (req: Request, res: Response) => {
 
   delete result.rows[0].password;
 
-  postSuccessful(res, "User registered successfully", result.rows[0]);
+  postSuccessful(res, "User registered", result.rows[0]);
+});
+
+const login = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  const result = await authServices.loginUser(email);
+
+  if (!result.rows.length) {
+    notFound(res, "User");
+  }
+
+  const user = result.rows[0];
+
+  const match = await bcrypt.compare(password, user.password);
+
+  if (!match) {
+    unauthorizedRequest(res, "credentials");
+  }
+
+  const secret = config.jwt_secret;
+  const accessToken = jwt.sign({ role: user.role }, secret as string, {
+    expiresIn: "15m",
+  });
+  const refreshToken = jwt.sign({ role: user.role }, secret as string, {
+    expiresIn: "7d",
+  });
+
+  okResponse(res, "User logged in successfully", { accessToken, refreshToken });
+
+  return { accessToken, refreshToken };
 });
 
 export const authController = {
   create,
+  login,
 };
