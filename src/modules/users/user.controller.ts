@@ -5,7 +5,6 @@ import {
   badRequest,
   notFound,
   okResponse,
-  serverError,
 } from "../../utils/responseHandler";
 import { asyncHandler } from "../../utils/asyncHandler";
 
@@ -33,18 +32,33 @@ const deleteOne = asyncHandler(async (req: Request, res: Response) => {
 
 const updateOne = asyncHandler(async (req: Request, res: Response) => {
   const uid = req.params.userId;
+
   if (!Object.keys(req.body).length) {
     return badRequest(res);
   }
 
-  for (const key in req.body) {
-    await userServices.updateById(uid!, req.body, key);
-  }
-  const result = await userServices.getById(uid!);
-  delete result.rows[0].password;
+  const allowedFields = ["name", "email", "phone", "address"];
 
-  okResponse(res, "User updated successfully", result.rows);
+  //to keep it sql-injection free
+  const filteredData: any = {};
+
+  for (const key in req.body) {
+    if (allowedFields.includes(key)) {
+      filteredData[key] = req.body[key];
+    }
+  }
+
+  if (!Object.keys(filteredData).length) {
+    return badRequest(res);
+  }
+
+  const updatedUser = await userServices.updateById(uid!, req.body);
+
+  delete updatedUser.password;
+
+  okResponse(res, "User updated successfully", updatedUser);
 });
+
 export const userControllers = {
   findAll,
   deleteOne,

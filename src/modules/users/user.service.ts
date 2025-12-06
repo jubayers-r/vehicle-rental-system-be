@@ -14,25 +14,31 @@ const deleteById = async (userId: string) => {
   );
 };
 
-const updateById = async (userId: string, payload: string, key: any) => {
-  await pool.query(
+const updateById = async (userId: string, payload: string) => {
+  const keys = Object.keys(payload);
+
+  // extra safety layer eventhough I this codebase dont need it, as hopefully nones gonna touch my code but just to remember gpt's quote I loved today, "Use it to keep your service fool proof (incase someone deletes contoller's safety layers by mistake)"
+
+  if (!keys.length) {
+    throw new Error("No valid fields to update");
+  }
+
+  const setString = keys.map((key, i) => `${key} = $${i + 1}`).join(", ");
+
+  const values = keys.map((key: any) => payload[key]);
+
+  const result = await pool.query(
     `
     UPDATE users
-    SET ${key} = $1
-    WHERE id = $2
-    RETURNING *
+    SET ${setString}
+    WHERE id = $${keys.length + 1}
+    RETURNING *;
     `,
-    [payload[key], userId],
+    [...values, userId],
   );
+  return result.rows[0];
 };
 
-const getById = async (userId: string) => {
-  return await pool.query(
-    `
-         SELECT * FROM users WHERE id=$1
-        `,
-    [userId],
-  );
-};
 
-export const userServices = { getAllUsers, deleteById, updateById, getById };
+
+export const userServices = { getAllUsers, deleteById, updateById };
