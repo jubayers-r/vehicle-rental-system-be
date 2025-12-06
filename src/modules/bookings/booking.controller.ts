@@ -4,7 +4,9 @@ import {
   badRequest,
   conflictResponse,
   notFound,
+  okResponse,
   postSuccessful,
+  unauthorizedRequest,
 } from "../../utils/responseHandler";
 import { Request, Response } from "express";
 import { bookingService } from "./booking.service";
@@ -80,4 +82,28 @@ const create = asyncHandler(async (req: Request, res: Response) => {
   return postSuccessful(res, "Booking created", resultPayload);
 });
 
-export const bookingControllers = { create };
+const findAll = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return unauthorizedRequest(res, "token");
+  }
+
+  if (req.user?.role === "admin") {
+    const result = await bookingService.getAllBookings();
+
+    if (!result.rows.length) {
+      return notFound(res, "Bookings");
+    }
+
+    return okResponse(res, "Bookings retrieved successfully", result.rows);
+  } else {
+    const result = await bookingService.getById(req.user?.id);
+
+    if (!result.rows.length) {
+      return notFound(res, "Your bookings");
+    }
+
+    return okResponse(res, "Your bookings retrieved successfully", result.rows);
+  }
+});
+
+export const bookingControllers = { create, findAll };

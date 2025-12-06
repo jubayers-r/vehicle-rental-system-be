@@ -49,7 +49,7 @@ const login = asyncHandler(async (req: Request, res: Response) => {
   if (!match) {
     return unauthorizedRequest(res, "credentials");
   }
-  delete user.id;
+  
   delete user.password;
   delete user.iat;
   delete user.exp;
