@@ -1,17 +1,14 @@
 import { Router } from "express";
 import { userControllers } from "./user.controller";
-import { pool } from "../../config/db";
-import { Request, Response } from "express";
+import auth from "../../middleware/auth";
 
 const router = Router();
 
-// admin_access_only middleware needed
-router.get("/", userControllers.findAll);
+router.get("/", auth(["admin"]), userControllers.findAll);
 
-// admin_access_only middleware needed
-router.delete("/:userId", userControllers.deleteOne);
+router.delete("/:userId", auth(["admin"]), userControllers.deleteOne);
 
 // admin or customer(for own account) middleware needed
-router.put("/:userId", userControllers.updateOne);
+router.put("/:userId", auth(["admin", "own"]), userControllers.updateOne);
 
 export const userRoutes = router;

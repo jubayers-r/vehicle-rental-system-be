@@ -28,9 +28,16 @@ const badRequest = (res: Response) => {
 const unauthorizedRequest = (res: Response, resource: string) => {
   res.status(401).json({
     success: false,
-    message: `Invalid ${resource}`
-  })
-}
+    message: `Invalid ${resource}`,
+  });
+};
+
+const forbiddenRequest = (res: Response) => {
+  res.status(403).json({
+    success: false,
+    message: "Forbidden Request. You are not allowed to access the data.",
+  });
+};
 
 const notFound = (res: Response, resource: string) => {
   res.status(404).json({
@@ -49,4 +56,12 @@ const serverError = (res: Response, err: any) => {
   });
 };
 
-export { postSuccessful, okResponse, unauthorizedRequest, notFound, badRequest, serverError };
+export {
+  postSuccessful,
+  okResponse,
+  unauthorizedRequest,
+  forbiddenRequest,
+  notFound,
+  badRequest,
+  serverError,
+};
