@@ -34,10 +34,11 @@ const notFound = (res: Response, resource: string) => {
 
 // 500
 const serverError = (res: Response, err: any) => {
+  console.log("SERVER ERROR", err.message);
+
   res.status(500).json({
     success: false,
-    message: err.message,
-    details: err,
+    message: "Internal Server Error",
   });
 };
 
