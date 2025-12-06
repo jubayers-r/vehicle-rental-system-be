@@ -1,8 +1,11 @@
 import { Router, Request, Response } from "express";
+import { pool } from "../../config/db";
+import { badRequest, postSuccessful } from "../../utils/responseHandler";
+import { vehicleControllers } from "./vehicle.controller";
+import auth from "../../middleware/auth";
 
 const router = Router();
-router.get("/", async(_req: Request, res: Response) => {
-res.send("welcome to /api/v1/vehicles route")
-})
+router.post("/", auth(["admin"]), vehicleControllers.create);
+
 
 export const vehicleRoutes = router;
