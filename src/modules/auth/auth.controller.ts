@@ -1,13 +1,10 @@
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import { authServices } from "./auth.service";
-import {
-  badRequest,
-  postSuccessful,
-  serverError,
-} from "../../utils/responseHandler";
+import { badRequest, postSuccessful } from "../../utils/responseHandler";
+import { asyncHandler } from "../../utils/asyncHandler";
 
-const create = async (req: Request, res: Response) => {
+const create = asyncHandler(async (req: Request, res: Response) => {
   const { password, ...rest } = req.body;
 
   const hashedPass = await bcrypt.hash(password, 10);
@@ -18,19 +15,14 @@ const create = async (req: Request, res: Response) => {
   };
 
   const result = await authServices.createUser(userData);
-
-  try {
-    if (!result.rows.length) {
-      badRequest(res);
-    } else {
-      delete result.rows[0].password;
-
-      postSuccessful(res, "User registered successfully", result.rows);
-    }
-  } catch (error: any) {
-    serverError(res, error);
+  if (!result.rows.length) {
+    badRequest(res);
   }
-};
+
+  delete result.rows[0].password;
+
+  postSuccessful(res, "User registered successfully", result.rows[0]);
+});
 
 export const authController = {
   create,
