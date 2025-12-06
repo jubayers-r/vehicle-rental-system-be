@@ -1,0 +1,49 @@
+import { pool } from "../../config/db";
+
+const vehicleQuery = async (vid: string) =>
+  await pool.query(
+    `
+    SELECT vehicle_name, daily_rent_price, availability_status FROM vehicles WHERE id = $1
+    `,
+    [vid],
+  );
+
+const updateCarStatus = async (vehicle_id: string) =>
+  await pool.query(
+    `
+        UPDATE vehicles
+        SET availability_status = $1
+        WHERE id = $2
+        RETURNING *
+        `,
+    ["booked", vehicle_id],
+  );
+
+
+const createBooking = async (payload: Record<string, unknown>) => {
+  const {
+    customer_id,
+    vehicle_id,
+    rent_start_date,
+    rent_end_date,
+    total_price,
+  } = payload;
+
+  return await pool.query(
+    `
+            INSERT INTO bookings(customer_id, vehicle_id, rent_start_date, rent_end_date, total_price, status)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *
+                `,
+    [
+      customer_id,
+      vehicle_id,
+      rent_start_date,
+      rent_end_date,
+      total_price,
+      "active",
+    ],
+  );
+};
+
+export const bookingService = { vehicleQuery, updateCarStatus, createBooking };

@@ -39,6 +39,13 @@ const forbiddenRequest = (res: Response) => {
   });
 };
 
+const conflictResponse = (res: Response, message: string) => {
+  return res.status(409).json({
+    success: false,
+    message: message,
+  });
+};
+
 const notFound = (res: Response, resource: string) => {
   res.status(404).json({
     success: false,
@@ -61,6 +68,7 @@ export {
   okResponse,
   unauthorizedRequest,
   forbiddenRequest,
+  conflictResponse,
   notFound,
   badRequest,
   serverError,
