@@ -11,6 +11,7 @@ import {
 import { Request, Response } from "express";
 import { bookingService } from "./booking.service";
 import { vehicleServices } from "../vehicles/vehicle.service";
+import { userServices } from "../users/user.service";
 
 const create = asyncHandler(async (req: Request, res: Response) => {
   const { customer_id, vehicle_id, rent_start_date, rent_end_date } = req.body;
@@ -30,7 +31,16 @@ const create = asyncHandler(async (req: Request, res: Response) => {
     return badRequest(res);
   }
 
-  // --- Query vehicle directly ---
+  // --- Query vehicle & customer ---
+
+  const customerExistence = (await userServices.getAllUsers()).rows
+    .map((row) => row.id)
+    .toLocaleString()
+    .includes(customer_id!);
+
+  if (!customerExistence) {
+    return notFound(res, "Customer");
+  }
 
   const vehicleQuery = await vehicleServices.vehicleQuery(vehicle_id);
 
