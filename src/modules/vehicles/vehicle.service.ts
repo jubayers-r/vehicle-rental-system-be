@@ -45,9 +45,32 @@ const deleteById = async (vid: string) => {
   );
 };
 
+//
+
+const vehicleQuery = async (vid: string) =>
+  await pool.query(
+    `
+    SELECT vehicle_name, daily_rent_price, availability_status FROM vehicles WHERE id = $1
+    `,
+    [vid],
+  );
+
+const updateCarStatus = async (vehicle_id: string, status: string) =>
+  await pool.query(
+    `
+    UPDATE vehicles
+    SET availability_status = $1
+    WHERE id = $2
+    RETURNING *
+    `,
+    [status, vehicle_id],
+  );
+
 export const vehicleServices = {
   createVehicle,
   getAllVehicles,
   getById,
   deleteById,
+  vehicleQuery,
+  updateCarStatus,
 };

@@ -10,6 +10,7 @@ import {
 } from "../../utils/responseHandler";
 import { Request, Response } from "express";
 import { bookingService } from "./booking.service";
+import { vehicleServices } from "../vehicles/vehicle.service";
 
 const create = asyncHandler(async (req: Request, res: Response) => {
   const { customer_id, vehicle_id, rent_start_date, rent_end_date } = req.body;
@@ -31,7 +32,7 @@ const create = asyncHandler(async (req: Request, res: Response) => {
 
   // --- Query vehicle directly ---
 
-  const vehicleQuery = await bookingService.vehicleQuery(vehicle_id);
+  const vehicleQuery = await vehicleServices.vehicleQuery(vehicle_id);
 
   if (!vehicleQuery.rows.length) {
     return notFound(res, "Vehicle");
@@ -62,7 +63,10 @@ const create = asyncHandler(async (req: Request, res: Response) => {
   }
 
   // --- Update vehicle status ---
-  const updateCarStatus = await bookingService.updateCarStatus(vehicle_id);
+  const updateCarStatus = await vehicleServices.updateCarStatus(
+    vehicle_id,
+    "booked",
+  );
 
   if (!updateCarStatus.rows.length) {
     return conflictResponse(res, "Vehicle is not available for booking");

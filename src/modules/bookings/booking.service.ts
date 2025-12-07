@@ -1,24 +1,5 @@
 import { pool } from "../../config/db";
 
-const vehicleQuery = async (vid: string) =>
-  await pool.query(
-    `
-    SELECT vehicle_name, daily_rent_price, availability_status FROM vehicles WHERE id = $1
-    `,
-    [vid],
-  );
-
-const updateCarStatus = async (vehicle_id: string) =>
-  await pool.query(
-    `
-        UPDATE vehicles
-        SET availability_status = $1
-        WHERE id = $2
-        RETURNING *
-        `,
-    ["booked", vehicle_id],
-  );
-
 const createBooking = async (payload: Record<string, unknown>) => {
   const {
     customer_id,
@@ -58,10 +39,11 @@ const getById = async (uid: string) =>
     [uid],
   );
 
+
+
 export const bookingService = {
-  vehicleQuery,
-  updateCarStatus,
   createBooking,
   getAllBookings,
   getById,
+
 };
