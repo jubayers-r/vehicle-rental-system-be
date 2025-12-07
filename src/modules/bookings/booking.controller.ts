@@ -133,13 +133,22 @@ const updateStatus = asyncHandler(async (req: Request, res: Response) => {
     return notFound(res, "Booking");
   }
 
-  const { vehicle_id, rent_start_date } = bookingsQuery.rows[0];
+  const { vehicle_id, rent_start_date, rent_end_date } = bookingsQuery.rows[0];
+  // time formatting for later use
+  const now = Date.now();
+  const startDate = new Date(rent_start_date).getTime();
+  const endDate = new Date(rent_end_date).getTime();
 
-  // who came token status check
-  const adminCame = status === "returned" && req.user?.role === "admin";
+  // who came token status and expiry date check
+  const adminCameOrExpired =
+    (status === "returned" && req.user?.role === "admin") || now >= endDate;
   const customerCame = status === "cancelled" && req.user?.role === "customer";
 
-  const newStatus = adminCame ? "returned" : customerCame ? "cancelled" : null;
+  const newStatus = adminCameOrExpired
+    ? "returned"
+    : customerCame
+      ? "cancelled"
+      : null;
 
   // no status input request
   if (
@@ -174,9 +183,9 @@ const updateStatus = asyncHandler(async (req: Request, res: Response) => {
     };
   }
 
-  //admin response
+  //admin && system response
   if (
-    adminCame &&
+    adminCameOrExpired &&
     carStatusUpdate!.rows.length &&
     bookingStatusUpdate.rows.length
   ) {
@@ -190,10 +199,7 @@ const updateStatus = asyncHandler(async (req: Request, res: Response) => {
   //user response
 
   if (customerCame) {
-    const today = Date.now();
-    const date = new Date(rent_start_date).getTime();
-
-    if (today >= date) {
+    if (now >= startDate) {
       return conflictResponse(
         res,
         "Cancellation is only possible before before start date only",

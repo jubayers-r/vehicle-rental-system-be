@@ -55,7 +55,7 @@ const cancelBooking = async (status: string, bid: string) =>
 const bookingsQuery = async (bid: string) =>
   await pool.query(
     `
-      SELECT vehicle_id, rent_start_date
+      SELECT vehicle_id, rent_start_date, rent_end_date
       FROM bookings
       WHERE id = $1
       `,
