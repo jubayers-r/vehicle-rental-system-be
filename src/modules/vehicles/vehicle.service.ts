@@ -45,6 +45,26 @@ const deleteById = async (vid: string) => {
   );
 };
 
+const updateById = async (vid: string, payload: Record<string, unknown>) => {
+  const keys = Object.keys(payload);
+
+  const setString = keys.map((key, i) => `${key} = $${i + 1}`).join(", ");
+
+  const values = keys.map((key: any) => payload[key]);
+
+  const result = await pool.query(
+    `
+    UPDATE vehicles
+    SET ${setString}
+    WHERE id = $${keys.length + 1}
+    RETURNING *
+    `,
+    [...values, vid],
+  );
+
+  return result.rows[0];
+};
+
 //
 
 const vehicleQuery = async (vid: string) =>
@@ -73,4 +93,5 @@ export const vehicleServices = {
   deleteById,
   vehicleQuery,
   updateCarStatus,
+  updateById,
 };

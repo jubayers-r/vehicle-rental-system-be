@@ -52,4 +52,44 @@ const deleteOne = asyncHandler(async (req: Request, res: Response) => {
   return okResponse(res, "Vehicle deleted successfully");
 });
 
-export const vehicleControllers = { create, findAll, findOne, deleteOne };
+const updateVehicle = asyncHandler(async (req: Request, res: Response) => {
+  const vid = req.params.vehicleId;
+
+  if (!Object.keys(req.body).length) {
+    return badRequest(res);
+  }
+
+  const allowedFields = [
+    "vehicle_name",
+    "type",
+    "registration_number",
+    "daily_rent_price",
+    "availability_status",
+  ];
+
+  const filteredData: any = {};
+
+  for (const key in req.body) {
+    if (allowedFields.includes(key)) {
+      filteredData[key] = req.body[key];
+    }
+  }
+
+  if (!Object.keys(filteredData).length) {
+    return badRequest(res);
+  }
+
+  const updatedUser = await vehicleServices.updateById(vid!, filteredData);
+
+  delete updatedUser.password;
+
+  return okResponse(res, "Vehicle updated successfully", updatedUser);
+});
+
+export const vehicleControllers = {
+  create,
+  findAll,
+  findOne,
+  deleteOne,
+  updateVehicle,
+};
