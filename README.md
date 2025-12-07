@@ -2,32 +2,13 @@
 
 A comprehensive backend API for managing vehicle rentals, built with Node.js, TypeScript, Express.js, and PostgreSQL.
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Database Setup](#database-setup)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
-- [Authentication](#authentication)
-- [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## 🎯 Overview
 
 The Vehicle Rental System is a robust backend API designed to streamline vehicle rental operations. It provides comprehensive functionality for managing vehicle inventory, customer accounts, bookings, and secure role-based authentication.
 
-
 ## 🌐 Live API
 
 **Base URL:** `https://vehicle-rental-system-be.vercel.app/api/v1/`
-
 
 ## ✨ Features
 
@@ -62,7 +43,7 @@ The Vehicle Rental System is a robust backend API designed to streamline vehicle
 Before you begin, ensure you have the following installed:
 
 - **Node.js** (v16.x or higher)
-- **npm** or **yarn**
+- **pnpm** or **npm** or **yarn**
 - **PostgreSQL** (v12.x or higher)
 - **Git**
 
@@ -71,13 +52,13 @@ Before you begin, ensure you have the following installed:
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
-   cd vehicle-rental-system
+   git clone https://github.com/jubayers-r/vehicle-rental-system-be
+   cd vehicle-rental-system-be
    ```
 
 2. **Install dependencies**
    ```bash
-   npm install
+   pnpm install
    ```
 
 ## 💾 Database Setup
@@ -121,8 +102,8 @@ Before you begin, ensure you have the following installed:
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'booking_status') THEN
       CREATE TYPE booking_status AS ENUM ('active', 'cancelled', 'returned');
     END IF;
-  END
-  $$;
+   END
+   $$;
 
    -- Users Table
     CREATE TABLE IF NOT EXISTS users(
@@ -168,15 +149,9 @@ Before you begin, ensure you have the following installed:
 
    ```env
    # Server Configuration
-   PORT=3000
-   NODE_ENV=development
 
    # Database Configuration
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=vehicle_rental_db
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
+    DATABASE_URL=your_serverless_postres_string
 
    # JWT Configuration
    JWT_SECRET=your_jwt_secret_key_here
@@ -331,5 +306,3 @@ For support, email jubayer.shikder.007@gmail.com or open an issue in the reposit
 ---
 
 **Made with ❤️ using Node.js and TypeScript**
-
-
