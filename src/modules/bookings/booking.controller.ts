@@ -110,4 +110,79 @@ const findAll = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-export const bookingControllers = { create, findAll };
+//
+
+const updateStatus = asyncHandler(async (req: Request, res: Response) => {
+  const { status } = req.body;
+  const bid = req.params.bookingId;
+
+  const bookingsQuery = await bookingService.bookingsQuery(bid!);
+  const { vehicle_id, rent_start_date } = bookingsQuery.rows[0];
+
+  // no status input request
+
+  if (
+    (status !== "cancelled" && status !== "returned") ||
+    (status === "cancelled" && req.user?.role === "admin") ||
+    (status === "returned" && req.user?.role === "customer")
+  ) {
+    return badRequest(res);
+  }
+
+  //admin response
+
+  if (status === "returned" && req.user?.role === "admin") {
+    const bookingStatusUpdate = await bookingService.cancelBooking(
+      "returned",
+      bid!,
+    );
+    let carStatusUpdate;
+    if (bookingStatusUpdate.rows.length) {
+      carStatusUpdate = await vehicleServices.updateCarStatus(
+        vehicle_id!,
+        "available",
+      );
+    }
+
+    if (carStatusUpdate!.rows.length && bookingStatusUpdate.rows.length) {
+      const adminSuccessPayload = {
+        ...bookingStatusUpdate.rows[0],
+        vehicle: {
+          availability_status: "available",
+        },
+      };
+      return okResponse(
+        res,
+        "Booking marked as returned. Vehicle is now available",
+        adminSuccessPayload,
+      );
+    } else {
+    }
+  }
+
+  //user response
+
+  if (status === "cancelled" && req.user?.role === "customer") {
+    const today = Date.now();
+    const date = new Date(rent_start_date).getTime();
+
+    if (today >= date) {
+      return conflictResponse(
+        res,
+        "Cancellation is only possible before before start date only",
+      );
+    } else {
+      const result = await bookingService.cancelBooking("cancelled", bid!);
+      if (!result.rows.length) {
+        return notFound(res, "Booking");
+      }
+      return okResponse(res, "Booking cancelled successfully", result.rows[0]);
+    }
+  }
+
+  // public (without token/with invalid token) response
+
+  return unauthorizedRequest(res, "access");
+});
+
+export const bookingControllers = { create, findAll, updateStatus };

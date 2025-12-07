@@ -39,11 +39,33 @@ const getById = async (uid: string) =>
     [uid],
   );
 
+//
 
+const cancelBooking = async (status: string, bid: string) =>
+  await pool.query(
+    `
+        UPDATE bookings
+        SET status = $1
+        WHERE id = $2 AND status = 'active'
+        RETURNING *
+        `,
+    [status, bid],
+  );
+
+const bookingsQuery = async (bid: string) =>
+  await pool.query(
+    `
+      SELECT vehicle_id, rent_start_date
+      FROM bookings
+      WHERE id = $1
+      `,
+    [bid],
+  );
 
 export const bookingService = {
   createBooking,
   getAllBookings,
   getById,
-
+  cancelBooking,
+  bookingsQuery,
 };

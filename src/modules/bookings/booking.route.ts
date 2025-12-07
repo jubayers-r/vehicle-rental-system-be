@@ -18,4 +18,10 @@ router.post("/", auth(["admin", "customer"]), bookingControllers.create);
 
 router.get("/", auth(["admin", "customer"]), bookingControllers.findAll);
 
+router.put(
+  "/:bookingId",
+  auth(["admin", "customer"]),
+  bookingControllers.updateStatus,
+);
+
 export const bookingRoutes = router;
