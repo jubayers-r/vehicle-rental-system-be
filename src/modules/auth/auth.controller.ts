@@ -18,8 +18,17 @@ const create = asyncHandler(async (req: Request, res: Response) => {
 
   const hashedPass = await bcrypt.hash(password, 10);
 
+  // Convert all string fields in `rest` to lowercase
+  const loweredRest: Record<string, any> = {};
+  for (const key in rest) {
+    const value = rest[key];
+
+    loweredRest[key] = typeof value === "string" ? value.toLowerCase() : value;
+  }
+
+  // Final data to insert
   const userData = {
-    ...rest,
+    ...loweredRest,
     password: hashedPass,
   };
 
@@ -34,7 +43,8 @@ const create = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const login = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
+  email = email?.toLowerCase();
 
   const result = await authServices.loginUser(email);
 
