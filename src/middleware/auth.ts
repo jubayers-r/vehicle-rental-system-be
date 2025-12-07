@@ -21,14 +21,16 @@ const auth = (allowedRoles: string[]) => {
       token!,
       config.jwt_secret as string,
     ) as JwtPayload;
-    
+
     req.user = decoded;
 
     if (allowedRoles.length && !allowedRoles.includes(decoded.role)) {
       if (allowedRoles.includes("own")) {
         // self updation part
-        // cant think of the logic yet, kept for later
-        // next();
+        if (req.user?.id != req.params.userId) {
+          return unauthorizedRequest(res, "access");
+        }
+        return next();
       }
       return forbiddenRequest(res);
     }
