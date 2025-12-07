@@ -114,55 +114,72 @@ const findAll = asyncHandler(async (req: Request, res: Response) => {
 
 const updateStatus = asyncHandler(async (req: Request, res: Response) => {
   const { status } = req.body;
+
   const bid = req.params.bookingId;
 
   const bookingsQuery = await bookingService.bookingsQuery(bid!);
+
+  if (!bookingsQuery.rows.length) {
+    return notFound(res, "Booking");
+  }
+
   const { vehicle_id, rent_start_date } = bookingsQuery.rows[0];
 
-  // no status input request
+  // who came token status check
+  const adminCame = status === "returned" && req.user?.role === "admin";
+  const customerCame = status === "cancelled" && req.user?.role === "customer";
 
+  const newStatus = adminCame ? "returned" : customerCame ? "cancelled" : null;
+
+  // no status input request
   if (
     (status !== "cancelled" && status !== "returned") ||
     (status === "cancelled" && req.user?.role === "admin") ||
-    (status === "returned" && req.user?.role === "customer")
+    (status === "returned" && req.user?.role === "customer") ||
+    !newStatus
   ) {
     return badRequest(res);
   }
 
-  //admin response
+  // common responses
+  const bookingStatusUpdate = await bookingService.cancelBooking(
+    newStatus,
+    bid!,
+  );
 
-  if (status === "returned" && req.user?.role === "admin") {
-    const bookingStatusUpdate = await bookingService.cancelBooking(
-      "returned",
-      bid!,
+  let carStatusUpdate;
+  let successPayload;
+
+  if (bookingStatusUpdate.rows) {
+    carStatusUpdate = await vehicleServices.updateCarStatus(
+      vehicle_id!,
+      "available",
     );
-    let carStatusUpdate;
-    if (bookingStatusUpdate.rows.length) {
-      carStatusUpdate = await vehicleServices.updateCarStatus(
-        vehicle_id!,
-        "available",
-      );
-    }
 
-    if (carStatusUpdate!.rows.length && bookingStatusUpdate.rows.length) {
-      const adminSuccessPayload = {
-        ...bookingStatusUpdate.rows[0],
-        vehicle: {
-          availability_status: "available",
-        },
-      };
-      return okResponse(
-        res,
-        "Booking marked as returned. Vehicle is now available",
-        adminSuccessPayload,
-      );
-    } else {
-    }
+    successPayload = {
+      ...bookingStatusUpdate.rows[0],
+      vehicle: {
+        availability_status: "available",
+      },
+    };
+  }
+
+  //admin response
+  if (
+    adminCame &&
+    carStatusUpdate!.rows.length &&
+    bookingStatusUpdate.rows.length
+  ) {
+    return okResponse(
+      res,
+      "Booking marked as returned. Vehicle is now available",
+      successPayload,
+    );
   }
 
   //user response
 
-  if (status === "cancelled" && req.user?.role === "customer") {
+  if (customerCame) {
     const today = Date.now();
     const date = new Date(rent_start_date).getTime();
 
@@ -171,13 +188,13 @@ const updateStatus = asyncHandler(async (req: Request, res: Response) => {
         res,
         "Cancellation is only possible before before start date only",
       );
-    } else {
-      const result = await bookingService.cancelBooking("cancelled", bid!);
-      if (!result.rows.length) {
-        return notFound(res, "Booking");
-      }
-      return okResponse(res, "Booking cancelled successfully", result.rows[0]);
+    } else if (
+      carStatusUpdate!.rows.length &&
+      bookingStatusUpdate.rows.length
+    ) {
+      return okResponse(res, "Booking cancelled successfully", successPayload);
     }
+    return notFound(res, "Booking");
   }
 
   // public (without token/with invalid token) response

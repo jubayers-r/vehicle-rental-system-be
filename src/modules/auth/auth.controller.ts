@@ -49,10 +49,8 @@ const login = asyncHandler(async (req: Request, res: Response) => {
   if (!match) {
     return unauthorizedRequest(res, "credentials");
   }
-  
+
   delete user.password;
-  delete user.iat;
-  delete user.exp;
 
   const secret = config.jwt_secret;
   const accessToken = jwt.sign(user, secret as string, {

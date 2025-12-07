@@ -1,11 +1,7 @@
 import { Request, Response } from "express";
 import { userServices } from "./user.service";
 import { pool } from "../../config/db";
-import {
-  badRequest,
-  notFound,
-  okResponse,
-} from "../../utils/responseHandler";
+import { badRequest, notFound, okResponse } from "../../utils/responseHandler";
 import { asyncHandler } from "../../utils/asyncHandler";
 
 const findAll = asyncHandler(async (_req: Request, res: Response) => {
@@ -52,11 +48,11 @@ const updateOne = asyncHandler(async (req: Request, res: Response) => {
     return badRequest(res);
   }
 
-  const updatedUser = await userServices.updateById(uid!, req.body);
+  const updatedUser = await userServices.updateById(uid!, filteredData);
 
   delete updatedUser.password;
 
-  okResponse(res, "User updated successfully", updatedUser);
+  return okResponse(res, "User updated successfully", updatedUser);
 });
 
 export const userControllers = {
