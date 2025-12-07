@@ -2,12 +2,14 @@ import { pool } from "../../config/db";
 import { asyncHandler } from "../../utils/asyncHandler";
 import {
   badRequest,
+  conflictResponse,
   notFound,
   okResponse,
   postSuccessful,
 } from "../../utils/responseHandler";
 import { Request, Response } from "express";
 import { vehicleServices } from "./vehicle.service";
+import { bookingService } from "../bookings/booking.service";
 
 const create = asyncHandler(async (req: Request, res: Response) => {
   const result = await vehicleServices.createVehicle(req.body);
@@ -43,6 +45,16 @@ const findOne = asyncHandler(async (req: Request, res: Response) => {
 
 const deleteOne = asyncHandler(async (req: Request, res: Response) => {
   const vid = req.params.vehicleId;
+
+  const bookingExists = (await bookingService.getAllBookings()).rows
+    .map((row) => row.status === "active" && row.vehicle_id)
+    .toLocaleString()
+    .includes(vid!);
+
+  if (bookingExists) {
+    return conflictResponse(res, "There's active bookings under this vehicle");
+  }
+
   const result = await vehicleServices.deleteById(vid!);
 
   if (!result.rowCount) {

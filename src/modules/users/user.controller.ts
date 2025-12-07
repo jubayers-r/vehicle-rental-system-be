@@ -1,8 +1,14 @@
 import { Request, Response } from "express";
 import { userServices } from "./user.service";
 import { pool } from "../../config/db";
-import { badRequest, notFound, okResponse } from "../../utils/responseHandler";
+import {
+  badRequest,
+  conflictResponse,
+  notFound,
+  okResponse,
+} from "../../utils/responseHandler";
 import { asyncHandler } from "../../utils/asyncHandler";
+import { bookingService } from "../bookings/booking.service";
 
 const findAll = asyncHandler(async (_req: Request, res: Response) => {
   const result = await userServices.getAllUsers();
@@ -19,11 +25,25 @@ const findAll = asyncHandler(async (_req: Request, res: Response) => {
 });
 
 const deleteOne = asyncHandler(async (req: Request, res: Response) => {
+  const uid = req.params.userId;
+
+  const bookingExists = (await bookingService.getAllBookings()).rows
+    .map((row) => row.status === "active" && row.customer_id)
+    .toLocaleString()
+    .includes(uid!);
+
+  if (bookingExists) {
+    return conflictResponse(
+      res,
+      "Booking exists under this user. Delete bookings of the user before deleting user",
+    );
+  }
+
   const result = await userServices.deleteById(req.params.userId!);
   if (!result.rowCount) {
     return notFound(res, "User");
   }
-  okResponse(res, "User deleted successfully");
+  return okResponse(res, "User deleted successfully");
 });
 
 const updateOne = asyncHandler(async (req: Request, res: Response) => {
