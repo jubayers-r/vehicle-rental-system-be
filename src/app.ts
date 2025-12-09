@@ -32,7 +32,7 @@ initDB()
 app.use((req: Request, res: Response) => {
   return notFound(
     res,
-    `route '${req.path}' not found. Navigate from path '/api/v1/your_intended_route'`,
+    ` Navigate from root '/api/v1/'. Route '${req.path}'`,
   );
 });
 

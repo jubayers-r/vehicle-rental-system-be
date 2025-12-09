@@ -140,15 +140,11 @@ const updateStatus = asyncHandler(async (req: Request, res: Response) => {
   const endDate = new Date(rent_end_date).getTime();
 
   // who came token status and expiry date check
-  const adminCameOrExpired =
-    (status === "returned" && req.user?.role === "admin") || now >= endDate;
+  const expired = now >= endDate;
+  const adminCame = status === "returned" && req.user?.role === "admin";
   const customerCame = status === "cancelled" && req.user?.role === "customer";
 
-  const newStatus = adminCameOrExpired
-    ? "returned"
-    : customerCame
-      ? "cancelled"
-      : null;
+  const newStatus = adminCame ? "returned" : customerCame ? "cancelled" : null;
 
   // no status input request
   if (
@@ -183,15 +179,15 @@ const updateStatus = asyncHandler(async (req: Request, res: Response) => {
     };
   }
 
-  //admin && system response
+  //admin & system response
   if (
-    adminCameOrExpired &&
+    (adminCame || expired) &&
     carStatusUpdate!.rows.length &&
     bookingStatusUpdate.rows.length
   ) {
     return okResponse(
       res,
-      "Booking marked as returned. Vehicle is now available",
+      `${adminCame ? "Booking marked as returned. Vehicle is now available" : "Booking time expired, marked as returned. Vehicle is now available"}`,
       successPayload,
     );
   }
