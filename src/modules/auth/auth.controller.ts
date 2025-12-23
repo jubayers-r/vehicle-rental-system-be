@@ -63,16 +63,16 @@ const login = asyncHandler(async (req: Request, res: Response) => {
   delete user.password;
 
   const secret = config.jwt_secret;
-  const accessToken = jwt.sign(user, secret as string, {
+  const token = jwt.sign(user, secret as string, {
     expiresIn: "15m",
   });
-  const refreshToken = jwt.sign(user, secret as string, {
-    expiresIn: "7d",
-  });
+  // const refreshToken = jwt.sign(user, secret as string, {
+  //   expiresIn: "7d",
+  // });
 
-  okResponse(res, "User logged in successfully", { accessToken, refreshToken });
+  okResponse(res, "Login successful", { token, user });
 
-  return { accessToken, refreshToken };
+  return { token, user };
 });
 
 export const authController = {
